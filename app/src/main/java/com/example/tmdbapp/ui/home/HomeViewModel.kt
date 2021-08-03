@@ -10,6 +10,7 @@ import com.example.tmdbapp.util.ServiceManager
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import retrofit2.http.Query
 
 class HomeViewModel : ViewModel() {
 
@@ -39,6 +40,28 @@ class HomeViewModel : ViewModel() {
 
 
     }
+
+    fun getSearchMovies(page:Int=1,query: String){
+
+        viewModelScope.launch {
+
+            try {
+                val result = ServiceManager.request.getSearchSeries(page=page,query= query)
+                val showList = arrayListOf<Result>()
+                for (showResult in result.results) {
+                    showList.add(showResult)
+                }
+                showLiveData.postValue(showList)
+                Log.d("sa", showList[0].original_title!!)
+            } catch (e: Exception) {
+                Log.e("hata", "service call error", e)
+            }
+        }
+
+
+    }
+
+
 
 
 }

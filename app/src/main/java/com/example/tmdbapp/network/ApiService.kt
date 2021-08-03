@@ -11,6 +11,9 @@ interface ApiService {
                                   @Query("sort_by")sort_by: String ="popularity.desc",
                                   @Query("page")page:Int): ApiResponse
 
-
+    @GET("search/movie?")
+    suspend  fun getSearchSeries(@Query("api_key")api_key:String="b23c2cdf7348ebdcb9093c3b6215c216",
+                                  @Query("query")query: String,
+                                  @Query("page")page:Int): ApiResponse
 
 }

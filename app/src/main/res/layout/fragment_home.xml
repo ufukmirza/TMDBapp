@@ -17,13 +17,13 @@
         app:layout_constraintTop_toTopOf="parent">
 
         <EditText
-            android:id="@+id/editTextTextPersonName"
+            android:id="@+id/searchMovie"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:ems="10"
-            android:inputType="textPersonName"
-            android:text="Name" />
+            android:hint="Tyoe what you want"
+            android:inputType="textPersonName" />
 
         <Button
             android:id="@+id/button"

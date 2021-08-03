@@ -5,6 +5,8 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
+import android.widget.EditText
 import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -20,25 +22,37 @@ import com.example.tmdbapp.model.Result
 class HomeFragment : Fragment(R.layout.fragment_home) {
 
     private lateinit var homeViewModel: HomeViewModel
-    public val viewModel:HomeViewModel by viewModels()
-    public var movieAdapter=moviesAdapter()
-    var isFirstStart=true
-    var page=2
+    public val viewModel: HomeViewModel by viewModels()
+    public var movieAdapter = moviesAdapter()
+    var isFirstStart = true
+    var isItSearch=false
+    var page = 2
     var isLastPage: Boolean = false
     var isLoading: Boolean = false
-
-    var movieList=ArrayList<Result>()
+    var searchMovie=""
+    var movieList = ArrayList<Result>()
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         homeViewModel =
                 ViewModelProvider(this).get(HomeViewModel::class.java)
         homeViewModel.text.observe(viewLifecycleOwner, Observer {
-        //    textView.text = it
+            //    textView.text = it
         })
-        var recyclerView=view.findViewById<RecyclerView>(R.id.recyclerView)
-        recyclerView.adapter=movieAdapter
-        recyclerView.layoutManager=LinearLayoutManager(requireContext())
+
+
+        var button=view.findViewById<Button>(R.id.button)
+        button.setOnClickListener{
+            searchMovie=view.findViewById<EditText>(R.id.searchMovie).text.toString()
+            isFirstStart=true
+            isItSearch=true
+            page=2
+            viewModel.getSearchMovies(query = searchMovie)
+
+        }
+        var recyclerView = view.findViewById<RecyclerView>(R.id.recyclerView)
+        recyclerView.adapter = movieAdapter
+        recyclerView.layoutManager = LinearLayoutManager(requireContext())
         viewModel.getPopularMovies()
         observeViewModel()
 
@@ -58,10 +72,14 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
 
                 isLoading = true
                 //you have to call loadmore items to get more data
+                if(isItSearch==false)
                 getMoreItems()
+
+
+                if(isItSearch==true)
+                    getMoreSearchItems()
             }
         })
-
 
 
     }
@@ -72,25 +90,32 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
         //rvAdapter
         //  after getting your data you have to assign false to isLoading
         isLoading = false
-   viewModel.getPopularMovies(page)
+        viewModel.getPopularMovies(page)
         page++
 
     }
 
-    fun observeViewModel(){
+    fun getMoreSearchItems() {
+
+        isLoading = false
+        viewModel.getSearchMovies(page=page,query = searchMovie)
+        page++
+
+    }
+
+    fun observeViewModel() {
+
 
         viewModel.showLiveData.observe(requireActivity()) {
 
-            if(isFirstStart==true) {
-                isFirstStart=false
+            if (isFirstStart == true) {
+                isFirstStart = false
                 movieAdapter.apply {
                     movieList = it
                     movies = it
                     notifyDataSetChanged()
                 }
-            }
-
-            else{
+            } else {
 
                 movieAdapter.addData(
                         it
