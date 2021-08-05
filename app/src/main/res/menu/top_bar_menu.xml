@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+
+    <item
+        android:id="@+id/changeGridLayout"
+        android:title="change to gridview" />
+    <item android:title="change to listView"
+        android:id="@+id/changeListLayout"/>
+
+</menu>
