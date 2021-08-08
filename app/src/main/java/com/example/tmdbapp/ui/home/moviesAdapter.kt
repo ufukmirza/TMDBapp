@@ -13,10 +13,11 @@ import com.example.tmdbapp.model.Result
 
 
 
-class moviesAdapter : RecyclerView.Adapter<moviesAdapter.MyViewHolder>() {
+class moviesAdapter : RecyclerView.Adapter<moviesAdapter.MyViewHolder>(){
 
     var isLinearLayout=false
     var movies=ArrayList<Result>()
+     var recyclerViewClickInterface: RecyclerViewClickInterface? = null
     // var liveMovies= MutableLiveData<ArrayList<Show>>()
 
 
@@ -42,7 +43,12 @@ if(isLinearLayout)
     override fun onBindViewHolder(holder: MyViewHolder, position: Int) {
 
          holder.bind(movies.get(position))
+holder.itemView.setOnClickListener{
 
+    recyclerViewClickInterface?.onItemClick(movies.get(position));
+
+
+}
     }
 
 
@@ -78,9 +84,11 @@ if(isLinearLayout)
              // .override(450,450)
             //    .centerInside()
                 .into(imageView)
+
             // imageView.setImageResource(R.)
         }
 
     }
+
 
 }

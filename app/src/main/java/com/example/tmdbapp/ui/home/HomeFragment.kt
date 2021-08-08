@@ -8,6 +8,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
+import androidx.navigation.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -16,7 +17,7 @@ import com.example.tmdbapp.model.PaginationScrollListener
 import com.example.tmdbapp.model.Result
 
 
-class HomeFragment : Fragment(R.layout.fragment_home) {
+class HomeFragment : Fragment(R.layout.fragment_home) ,RecyclerViewClickInterface {
 
     private lateinit var homeViewModel: HomeViewModel
     public val viewModel: HomeViewModel by viewModels()
@@ -51,9 +52,10 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
         }
          recyclerView = view.findViewById<RecyclerView>(R.id.recyclerView)
         recyclerView.adapter = movieAdapter
-
+        movieAdapter.recyclerViewClickInterface=this
         //  recyclerView.layoutManager = LinearLayoutManager(requireContext())
         recyclerView.layoutManager = GridLayoutManager(activity, 2)
+        movieAdapter.isLinearLayout=false
         controlScroll()
         viewModel.getPopularMovies()
         observeViewModel()
@@ -144,7 +146,7 @@ override  fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.getItemId()) {
             R.id.changeGridLayout -> {
-                movieAdapter.isLinearLayout=false
+                movieAdapter.isLinearLayout = false
                 recyclerView.layoutManager = GridLayoutManager(activity, 2)
                 //  movieAdapter.onCreateViewHolder(GridLayoutManager(activity, 2) as ViewGroup,2)
                 movieAdapter.notifyDataSetChanged()
@@ -152,7 +154,7 @@ override  fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
                 true
             }
             R.id.changeListLayout -> {
-                movieAdapter.isLinearLayout=true
+                movieAdapter.isLinearLayout = true
                 recyclerView.layoutManager = LinearLayoutManager(activity)
                 // movieAdapter.onCreateViewHolder(LinearLayoutManager(activity) as ViewGroup,1)
                 movieAdapter.notifyDataSetChanged()
@@ -163,6 +165,19 @@ override  fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
             else -> true
         }
 
+    }
+
+    override fun onItemClick(movie: Result) {
+
+        val navController = activity?.findNavController(R.id.nav_host_fragment)
+        if (navController != null) {
+            val bundle = Bundle()
+        //    bundle.putString("link", "http://yourlink.com/policy")
+            bundle.putSerializable("Movie", movie) // Serializable Object
+            navController.navigate(R.id.action_navigation_home_to_detailFragment,bundle)
+
+
+        }
     }
 
 }
