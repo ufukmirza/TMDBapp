@@ -171,12 +171,15 @@ override  fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
 
         val navController = activity?.findNavController(R.id.nav_host_fragment)
         if (navController != null) {
+            /*
             val bundle = Bundle()
         //    bundle.putString("link", "http://yourlink.com/policy")
             bundle.putSerializable("Movie", movie) // Serializable Object
             navController.navigate(R.id.action_navigation_home_to_detailFragment,bundle)
 
-
+*/ val bundle = Bundle()
+            bundle.putInt("id",movie.id!!)
+            navController.navigate(R.id.action_navigation_home_to_detailFragment,bundle)
         }
     }
 

@@ -28,7 +28,7 @@
         tools:layout="@layout/fragment_notifications" />
     <fragment
         android:id="@+id/detailFragment"
-        android:name="com.example.tmdbapp.ui.home.DetailFragment"
+        android:name="com.example.tmdbapp.ui.detail.DetailFragment"
         android:label="DetailFragment"
         tools:layout="@layout/fragment_detail"/>
 </navigation>
