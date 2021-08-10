@@ -1,8 +1,11 @@
 package com.example.tmdbapp.ui.home
 
+import android.content.Context
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.CheckBox
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
@@ -11,13 +14,14 @@ import com.example.tmdbapp.R
 import com.example.tmdbapp.model.Result
 
 
-
-
 class moviesAdapter : RecyclerView.Adapter<moviesAdapter.MyViewHolder>(){
 
     var isLinearLayout=false
     var movies=ArrayList<Result>()
      var recyclerViewClickInterface: RecyclerViewClickInterface? = null
+    var context:Context?=null
+ var favoriteMoviesId : Int?=null
+    var inSet=HashSet<String>()
     // var liveMovies= MutableLiveData<ArrayList<Show>>()
 
 
@@ -30,6 +34,7 @@ if(isLinearLayout)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MyViewHolder {
+
         val context = parent.context
         val view:View
         if (viewType==0)
@@ -41,6 +46,7 @@ if(isLinearLayout)
 
 
     override fun onBindViewHolder(holder: MyViewHolder, position: Int) {
+
 
          holder.bind(movies.get(position))
 holder.itemView.setOnClickListener{
@@ -74,9 +80,11 @@ holder.itemView.setOnClickListener{
         private val textView: TextView = itemView.findViewById(R.id.textView)
         private  val textView2: TextView =itemView.findViewById(R.id.textView2)
         private val textView4: TextView = itemView.findViewById(R.id.textView4)
+        private val checkBox: CheckBox = itemView.findViewById(R.id.checkBox2)
 
         fun bind(movie: Result) {
             //imageDrawable)
+
             textView.text = movie.original_title
             textView2.text= movie.release_date
             textView4.text=movie.vote_average.toString()
@@ -84,7 +92,14 @@ holder.itemView.setOnClickListener{
              // .override(450,450)
             //    .centerInside()
                 .into(imageView)
-
+ if(movie.isFavorite == true)
+checkBox.isChecked=true
+            else
+                checkBox.isChecked=false
+            /*if(stringHashSet!!.contains(movie.id.toString())) {
+                checkBox.isChecked = true
+                Log.d("sa",movie.id.toString())
+            }*/
             // imageView.setImageResource(R.)
         }
 

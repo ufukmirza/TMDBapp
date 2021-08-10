@@ -23,8 +23,8 @@
 
     <fragment
         android:id="@+id/navigation_notifications"
-        android:name="com.example.tmdbapp.ui.notifications.NotificationsFragment"
-        android:label="@string/title_notifications"
+        android:name="com.example.tmdbapp.ui.favorites.FavoritesFragment"
+        android:label="@string/title_favorite"
         tools:layout="@layout/fragment_notifications" />
     <fragment
         android:id="@+id/detailFragment"

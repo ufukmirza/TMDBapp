@@ -1,11 +1,14 @@
 package com.example.tmdbapp.ui.home
 
+import android.content.Context
 import android.os.Bundle
 import android.view.*
 import android.widget.Button
 import android.widget.EditText
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.findNavController
@@ -17,19 +20,20 @@ import com.example.tmdbapp.model.PaginationScrollListener
 import com.example.tmdbapp.model.Result
 
 
-class HomeFragment : Fragment(R.layout.fragment_home) ,RecyclerViewClickInterface {
+class HomeFragment : Fragment(R.layout.fragment_home), RecyclerViewClickInterface {
 
     private lateinit var homeViewModel: HomeViewModel
     public val viewModel: HomeViewModel by viewModels()
     public var movieAdapter = moviesAdapter()
     var isFirstStart = true
     var isItSearch = false
-    var page = 2
+    var page = 1
+    var live_page=MutableLiveData<Int>()
     var isLastPage: Boolean = false
     var isLoading: Boolean = false
     var searchMovie = ""
     var movieList = ArrayList<Result>()
-    lateinit var recyclerView :RecyclerView
+    lateinit var recyclerView: RecyclerView
     val isSwitched: Boolean = true
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -46,25 +50,31 @@ class HomeFragment : Fragment(R.layout.fragment_home) ,RecyclerViewClickInterfac
             searchMovie = view.findViewById<EditText>(R.id.searchMovie).text.toString()
             isFirstStart = true
             isItSearch = true
-            page = 2
+            page = 1
+            live_page.postValue(page)
             viewModel.getSearchMovies(query = searchMovie)
 
         }
-         recyclerView = view.findViewById<RecyclerView>(R.id.recyclerView)
+        recyclerView = view.findViewById<RecyclerView>(R.id.recyclerView)
         recyclerView.adapter = movieAdapter
-        movieAdapter.recyclerViewClickInterface=this
+        movieAdapter.recyclerViewClickInterface = this
+        movieAdapter.context=context
+if(live_page.value!=null)
+        page= live_page.value!!
         //  recyclerView.layoutManager = LinearLayoutManager(requireContext())
         recyclerView.layoutManager = GridLayoutManager(activity, 2)
-        movieAdapter.isLinearLayout=false
+        movieAdapter.isLinearLayout = false
         controlScroll()
-        viewModel.getPopularMovies()
-        observeViewModel()
-
-
+        if(page<2){
+            viewModel.getPopularMovies()
+            observeViewModel()
+                    page++
+            live_page.postValue(page)
+        }
 
     }
 
-    fun controlScroll(){
+    fun controlScroll() {
 
         recyclerView.addOnScrollListener(object : PaginationScrollListener(recyclerView.layoutManager as LinearLayoutManager) {
 
@@ -93,14 +103,11 @@ class HomeFragment : Fragment(R.layout.fragment_home) ,RecyclerViewClickInterfac
     }
 
     fun getMoreItems() {
-        //after fetching your data assuming you have fetched list in your
-        // recyclerview adapter assuming your recyclerview adapter is
-        //rvAdapter
-        //  after getting your data you have to assign false to isLoading
+
         isLoading = false
         viewModel.getPopularMovies(page)
         page++
-
+        live_page.postValue(page)
     }
 
     fun getMoreSearchItems() {
@@ -108,15 +115,26 @@ class HomeFragment : Fragment(R.layout.fragment_home) ,RecyclerViewClickInterfac
         isLoading = false
         viewModel.getSearchMovies(page = page, query = searchMovie)
         page++
-
+        live_page.postValue(page)
     }
 
     fun observeViewModel() {
 
 
         viewModel.showLiveData.observe(requireActivity()) {
+            val preferences = context?.getSharedPreferences("preferences", Context.MODE_PRIVATE)
+            var stringHashSet= preferences?.getStringSet("favorites", HashSet<String>())
+            var  inSet = HashSet<String>(stringHashSet)
+            it.forEach{
+
+                if(inSet.contains(it.id.toString()))
+                    it.isFavorite=true
+
+            }
 
             if (isFirstStart == true) {
+
+
                 isFirstStart = false
                 movieAdapter.apply {
                     movieList = it
@@ -136,7 +154,7 @@ class HomeFragment : Fragment(R.layout.fragment_home) ,RecyclerViewClickInterfac
     }
 
 
-override  fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
 
         val inflater: MenuInflater = requireActivity().menuInflater
         inflater.inflate(R.menu.top_bar_menu, menu)
@@ -171,15 +189,12 @@ override  fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
 
         val navController = activity?.findNavController(R.id.nav_host_fragment)
         if (navController != null) {
-            /*
-            val bundle = Bundle()
-        //    bundle.putString("link", "http://yourlink.com/policy")
-            bundle.putSerializable("Movie", movie) // Serializable Object
-            navController.navigate(R.id.action_navigation_home_to_detailFragment,bundle)
 
-*/ val bundle = Bundle()
-            bundle.putInt("id",movie.id!!)
-            navController.navigate(R.id.action_navigation_home_to_detailFragment,bundle)
+    //first solution is sending the movie to details page
+            val bundle = Bundle()
+            bundle.putInt("id", movie.id!!)
+          //  bundle.putSerializable("movie",viewModel.showLiveData.value)
+            navController.navigate(R.id.action_navigation_home_to_detailFragment, bundle)
         }
     }
 
