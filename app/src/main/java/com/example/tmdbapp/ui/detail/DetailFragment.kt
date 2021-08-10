@@ -11,6 +11,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import com.bumptech.glide.Glide
 import com.example.tmdbapp.R
+import com.example.tmdbapp.model.DBHelper
 import com.example.tmdbapp.model.Result
 import com.google.android.material.bottomnavigation.BottomNavigationView
 
@@ -27,6 +28,7 @@ class DetailFragment : Fragment(R.layout.fragment_detail) {
     var movieId: Int? = null
     var movie: Result? = null
     private val detailViewModel: DetailViewModel by viewModels()
+    val db by lazy { DBHelper(requireContext())  }
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
 
         val preferences = context?.getSharedPreferences("preferences", Context.MODE_PRIVATE)
@@ -50,10 +52,12 @@ class DetailFragment : Fragment(R.layout.fragment_detail) {
                inSet.add(movieId.toString())
                 preferences?.edit()?.putStringSet("favorites",inSet)!!.apply()
               Log.d("sa", stringHashSet?.size.toString())
+                db.insertData(movie!!)
             }
               else{
                   inSet.remove(movieId.toString())
                 preferences?.edit()?.putStringSet("favorites", stringHashSet)!!.apply()
+                db.deleteData(movieId!!)
                 }
 
 
@@ -78,6 +82,7 @@ movieDetail.text=movie!!.overview
     fun observe()  {
 
         detailViewModel.showLiveData.observe(requireActivity()) {
+            movie=it
             movieId = it.id
             movieDetail.text = it.overview
             // movieDetail.text="\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nsa"
