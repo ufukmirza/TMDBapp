@@ -7,9 +7,11 @@ import android.view.View
 import android.widget.CheckBox
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import com.bumptech.glide.Glide
+import com.bumptech.glide.request.RequestOptions
 import com.example.tmdbapp.R
 import com.example.tmdbapp.model.DBHelper
 import com.example.tmdbapp.model.Result
@@ -33,7 +35,7 @@ class DetailFragment : Fragment(R.layout.fragment_detail) {
 
         val preferences = context?.getSharedPreferences("preferences", Context.MODE_PRIVATE)
          stringHashSet= preferences?.getStringSet("favorites", HashSet<String>())
-        val navBar: BottomNavigationView = activity?.findViewById(R.id.nav_view)!!
+        //val navBar: BottomNavigationView = activity?.findViewById(R.id.nav_view)!!
         //   navBar.visibility=View.INVISIBLE
         activity?.actionBar?.hide()
 
@@ -89,9 +91,10 @@ movieDetail.text=movie!!.overview
             movieName.text = it.original_title
             movieDate.append(it.release_date)
             movieVote.append(it.vote_average.toString())
-            Glide.with(movieImage.context).load("https://image.tmdb.org/t/p/w500" + it.backdrop_path!!)
+            Glide.with(movieImage.context).load("https://image.tmdb.org/t/p/w500" + it.backdrop_path)
                     // .override(450,450)
                     //    .centerInside()
+                    .apply( RequestOptions().placeholder(R.drawable.nophoto).error(R.drawable.nophoto))
                     .into(movieImage)
 
             if(stringHashSet!!.contains(movieId.toString())) {

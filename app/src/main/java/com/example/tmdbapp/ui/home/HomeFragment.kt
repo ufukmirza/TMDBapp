@@ -50,7 +50,7 @@ class HomeFragment : Fragment(R.layout.fragment_home), RecyclerViewClickInterfac
             searchMovie = view.findViewById<EditText>(R.id.searchMovie).text.toString()
             isFirstStart = true
             isItSearch = true
-            page = 1
+            page = 2
             live_page.postValue(page)
             viewModel.getSearchMovies(query = searchMovie)
 
@@ -59,11 +59,14 @@ class HomeFragment : Fragment(R.layout.fragment_home), RecyclerViewClickInterfac
         recyclerView.adapter = movieAdapter
         movieAdapter.recyclerViewClickInterface = this
         movieAdapter.context=context
-if(live_page.value!=null)
+      if(live_page.value!=null)
         page= live_page.value!!
         //  recyclerView.layoutManager = LinearLayoutManager(requireContext())
+        if(!movieAdapter.isLinearLayout)
         recyclerView.layoutManager = GridLayoutManager(activity, 2)
-        movieAdapter.isLinearLayout = false
+        else
+            recyclerView.layoutManager = LinearLayoutManager(activity)
+     //   movieAdapter.isLinearLayout = false
         controlScroll()
         if(page<2){
             viewModel.getPopularMovies()
