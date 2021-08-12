@@ -15,9 +15,10 @@ import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
 import com.example.tmdbapp.R
 import com.example.tmdbapp.model.Result
+import java.io.Serializable
 
 
-class moviesAdapter : RecyclerView.Adapter<moviesAdapter.MyViewHolder>() {
+class moviesAdapter : RecyclerView.Adapter<moviesAdapter.MyViewHolder>(){
 
     var isLinearLayout = false
     var movies = ArrayList<Result>()

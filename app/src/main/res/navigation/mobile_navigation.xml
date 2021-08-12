@@ -25,7 +25,11 @@
         android:id="@+id/navigation_notifications"
         android:name="com.example.tmdbapp.ui.favorites.FavoritesFragment"
         android:label="@string/title_favorite"
-        tools:layout="@layout/fragment_favorites" />
+        tools:layout="@layout/fragment_favorites" >
+        <action
+            android:id="@+id/action_navigation_notifications_to_detailFragment"
+            app:destination="@id/detailFragment" />
+    </fragment>
     <fragment
         android:id="@+id/detailFragment"
         android:name="com.example.tmdbapp.ui.detail.DetailFragment"

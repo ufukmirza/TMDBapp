@@ -8,6 +8,7 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+import androidx.navigation.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -54,6 +55,17 @@ class FavoritesFragment : Fragment(R.layout.fragment_favorites),RecyclerViewClic
     }
 
     override fun onItemClick(movie: Result) {
+
+        val navController = activity?.findNavController(R.id.nav_host_fragment)
+        if (navController != null) {
+
+            //first solution is sending the movie to details page
+            val bundle = Bundle()
+            bundle.putBoolean("isFavoriteFragment", true)
+            bundle.putSerializable("movie",movie)
+            navController.navigate(R.id.action_navigation_notifications_to_detailFragment, bundle)
+        }
+
 
     }
 
