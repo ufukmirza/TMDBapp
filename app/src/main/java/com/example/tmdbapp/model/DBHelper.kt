@@ -43,8 +43,8 @@ class DBHelper(val context: Context) : SQLiteOpenHelper(context,DBHelper.DATABAS
     }
 
 
-    fun readData():MutableList<Result>{
-        val movieList = mutableListOf<Result>()
+    fun readData():ArrayList<Result>{
+        var movieList = ArrayList<Result>()
         val sqliteDB = this.readableDatabase
         val query = "SELECT * FROM $TABLE_NAME"
         val result = sqliteDB.rawQuery(query,null)
@@ -57,7 +57,7 @@ class DBHelper(val context: Context) : SQLiteOpenHelper(context,DBHelper.DATABAS
                 movie.release_date = result.getString(result.getColumnIndex(COL_RELEASEDATE))
                 movie.backdrop_path = result.getString(result.getColumnIndex(COL_MOVIEBACKDROPPATH))
                 movie.vote_average=result.getString(result.getColumnIndex(COL_VOTEAVERAGE)).toDouble()
-
+                movie.isFavorite=true
                 movieList.add(movie)
             }while (result.moveToNext())
         }
