@@ -1,6 +1,7 @@
 package com.example.tmdbapp.ui.home
 
 import android.util.Log
+import android.widget.Toast
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -15,7 +16,7 @@ import retrofit2.http.Query
 class HomeViewModel : ViewModel() {
 
     var showLiveData=MutableLiveData<ArrayList<Result>>()
-
+    var showError=MutableLiveData<Boolean>()
     private val _text = MutableLiveData<String>().apply {
         value = "This is home Fragment"
     }
@@ -54,7 +55,9 @@ class HomeViewModel : ViewModel() {
                 showLiveData.postValue(showList)
                 Log.d("sa", showList[0].original_title!!)
             } catch (e: Exception) {
+                showError.postValue(true)
                 Log.e("hata", "service call error", e)
+
             }
         }
 

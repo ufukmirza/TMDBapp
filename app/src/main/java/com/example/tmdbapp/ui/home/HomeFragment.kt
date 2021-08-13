@@ -2,9 +2,12 @@ package com.example.tmdbapp.ui.home
 
 import android.content.Context
 import android.os.Bundle
+import android.util.Log
 import android.view.*
 import android.widget.Button
 import android.widget.EditText
+import android.widget.Toast
+import androidx.activity.OnBackPressedCallback
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.MutableLiveData
@@ -18,7 +21,6 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.tmdbapp.R
 import com.example.tmdbapp.model.PaginationScrollListener
 import com.example.tmdbapp.model.Result
-import com.google.android.material.bottomnavigation.BottomNavigationView
 
 
 class HomeFragment : Fragment(R.layout.fragment_home), RecyclerViewClickInterface {
@@ -29,7 +31,7 @@ class HomeFragment : Fragment(R.layout.fragment_home), RecyclerViewClickInterfac
     var isFirstStart = true
     var isItSearch = false
     var page = 1
-    var live_page=MutableLiveData<Int>()
+    var live_page = MutableLiveData<Int>()
     var isLastPage: Boolean = false
     var isLoading: Boolean = false
     var searchMovie = ""
@@ -45,7 +47,8 @@ class HomeFragment : Fragment(R.layout.fragment_home), RecyclerViewClickInterfac
             //    textView.text = it
         })
 
-       // val bottomNavigationView : BottomNavigationView = activity?.findViewById(R.id.nav_view)!!
+
+        // val bottomNavigationView : BottomNavigationView = activity?.findViewById(R.id.nav_view)!!
         var button = view.findViewById<Button>(R.id.button)
         button.setOnClickListener {
             searchMovie = view.findViewById<EditText>(R.id.searchMovie).text.toString()
@@ -59,20 +62,29 @@ class HomeFragment : Fragment(R.layout.fragment_home), RecyclerViewClickInterfac
         recyclerView = view.findViewById<RecyclerView>(R.id.recyclerView)
         recyclerView.adapter = movieAdapter
         movieAdapter.recyclerViewClickInterface = this
-        movieAdapter.context=context
-      if(live_page.value!=null)
-        page= live_page.value!!
+        movieAdapter.context = context
+
+        findNavController().currentBackStackEntry?.savedStateHandle?.getLiveData<Result>("unique_key")?.observe(
+                viewLifecycleOwner) { result ->
+            Log.d("sa", result.id.toString())
+            val movie: Result? = movieAdapter.movies.find { it.id == result.id }
+            movieAdapter.movies.set(movieAdapter.movies.indexOf(movie), result)
+            movieAdapter.notifyDataSetChanged()
+            //     Log.d("sa",result)
+        }
+        if (live_page.value != null)
+            page = live_page.value!!
         //  recyclerView.layoutManager = LinearLayoutManager(requireContext())
-        if(!movieAdapter.isLinearLayout)
-        recyclerView.layoutManager = GridLayoutManager(activity, 2)
+        if (!movieAdapter.isLinearLayout)
+            recyclerView.layoutManager = GridLayoutManager(activity, 2)
         else
             recyclerView.layoutManager = LinearLayoutManager(activity)
-     //   movieAdapter.isLinearLayout = false
+        //   movieAdapter.isLinearLayout = false
         controlScroll()
-        if(page<2){
+        if (page < 2) {
             viewModel.getPopularMovies()
             observeViewModel()
-                    page++
+            page++
             live_page.postValue(page)
         }
 
@@ -127,12 +139,12 @@ class HomeFragment : Fragment(R.layout.fragment_home), RecyclerViewClickInterfac
 
         viewModel.showLiveData.observe(requireActivity()) {
             val preferences = context?.getSharedPreferences("preferences", Context.MODE_PRIVATE)
-            var stringHashSet= preferences?.getStringSet("favorites", HashSet<String>())
-            var  inSet = HashSet<String>(stringHashSet)
-            it.forEach{
+            var stringHashSet = preferences?.getStringSet("favorites", HashSet<String>())
+            var inSet = HashSet<String>(stringHashSet)
+            it.forEach {
 
-                if(inSet.contains(it.id.toString()))
-                    it.isFavorite=true
+                if (inSet.contains(it.id.toString()))
+                    it.isFavorite = true
 
             }
 
@@ -152,6 +164,14 @@ class HomeFragment : Fragment(R.layout.fragment_home), RecyclerViewClickInterfac
                 )
 
             }
+        }
+
+
+        viewModel.showError.observe(requireActivity()) {
+
+            if(it)
+            Toast.makeText(context,"islem basarisiz",Toast.LENGTH_SHORT).show()
+
         }
 
 
@@ -194,12 +214,15 @@ class HomeFragment : Fragment(R.layout.fragment_home), RecyclerViewClickInterfac
         val navController = activity?.findNavController(R.id.nav_host_fragment)
         if (navController != null) {
 
-    //first solution is sending the movie to details page
+            //first solution is sending the movie to details page
             val bundle = Bundle()
             bundle.putInt("id", movie.id!!)
-          //  bundle.putSerializable("movie",viewModel.showLiveData.value)
+            //  bundle.putSerializable("movie",viewModel.showLiveData.value)
             navController.navigate(R.id.action_navigation_home_to_detailFragment, bundle)
+
+
         }
     }
+
 
 }

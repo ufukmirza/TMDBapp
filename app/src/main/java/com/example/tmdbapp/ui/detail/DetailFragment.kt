@@ -7,16 +7,15 @@ import android.view.View
 import android.widget.CheckBox
 import android.widget.ImageView
 import android.widget.TextView
-import androidx.core.content.ContextCompat
+import androidx.activity.OnBackPressedCallback
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.navigation.fragment.findNavController
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
 import com.example.tmdbapp.R
 import com.example.tmdbapp.model.DBHelper
 import com.example.tmdbapp.model.Result
-import com.example.tmdbapp.ui.home.moviesAdapter
-import com.google.android.material.bottomnavigation.BottomNavigationView
 
 
 class DetailFragment : Fragment(R.layout.fragment_detail) {
@@ -48,18 +47,22 @@ class DetailFragment : Fragment(R.layout.fragment_detail) {
         favourite = view.findViewById(R.id.checkBox)
 
 
+
+
         favourite.setOnClickListener {
             var inSet = HashSet<String>(stringHashSet)
             if (favourite.isChecked) {
-
                 inSet.add(movieId.toString())
                 preferences?.edit()?.putStringSet("favorites", inSet)!!.apply()
+                movie?.isFavorite=true
+                findNavController().previousBackStackEntry?.savedStateHandle?.set("unique_key", movie)
                 Log.d("sa", stringHashSet?.size.toString())
                 db.insertData(movie!!)
+
             } else {
-
+                movie?.isFavorite=false
                 inSet.remove(movieId.toString())
-
+                findNavController().previousBackStackEntry?.savedStateHandle?.set("unique_key", movie)
                 preferences?.edit()?.putStringSet("favorites", inSet)!!.apply()
                 db.deleteData(movieId!!)
             }
@@ -120,4 +123,9 @@ class DetailFragment : Fragment(R.layout.fragment_detail) {
 
 
     }
+
+
+
 }
+
+
