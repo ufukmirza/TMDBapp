@@ -24,17 +24,17 @@ import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.example.tmdbapp.MainActivity
 import com.example.tmdbapp.R
 import com.example.tmdbapp.model.PaginationScrollListener
 import com.example.tmdbapp.model.Result
 import com.google.android.material.bottomnavigation.BottomNavigationView
 
-
 class HomeFragment : Fragment(R.layout.fragment_home), RecyclerViewClickInterface {
 
     private lateinit var homeViewModel: HomeViewModel
-    public val viewModel: HomeViewModel by viewModels()
-    public var movieAdapter = moviesAdapter()
+     val viewModel: HomeViewModel by viewModels()
+     var movieAdapter = moviesAdapter()
     var isFirstStart = true
     var isItSearch = false
     var page = 1
@@ -53,8 +53,8 @@ class HomeFragment : Fragment(R.layout.fragment_home), RecyclerViewClickInterfac
         this.callback = callback
     }
 
-    // This interface can be implemented by the Activity, parent Fragment,
-    // or a separate test implementation.
+
+
     interface OnHeadlineSelectedListener {
         fun onArticleSelected()
     }
@@ -65,14 +65,14 @@ class HomeFragment : Fragment(R.layout.fragment_home), RecyclerViewClickInterfac
         homeViewModel =
                 ViewModelProvider(this).get(HomeViewModel::class.java)
         homeViewModel.text.observe(viewLifecycleOwner, Observer {
-            //    textView.text = it
+
         })
 
-        //
 
-//callback.onArticleSelected()
 
-        //  val navController = navHostFragment.navController
+
+
+
         var button = view.findViewById<Button>(R.id.button)
         button.setOnClickListener {
             val inputMethodManager = activity?.getSystemService(Activity.INPUT_METHOD_SERVICE) as InputMethodManager
@@ -81,8 +81,10 @@ class HomeFragment : Fragment(R.layout.fragment_home), RecyclerViewClickInterfac
             isFirstStart = true
             isItSearch = true
             page = 2
+            viewModel.showPage.value = 1
             live_page.postValue(page)
             viewModel.getSearchMovies(query = searchMovie)
+            viewModel.showPage.value = 2
 
         }
         recyclerView = view.findViewById<RecyclerView>(R.id.recyclerView)
@@ -101,25 +103,26 @@ class HomeFragment : Fragment(R.layout.fragment_home), RecyclerViewClickInterfac
             movieAdapter.notifyDataSetChanged()
 
 
-            //     Log.d("sa",result)
+
         }
 
-        //   val bottomNavigationView : BottomNavigationView = requireActivity().findViewById(R.id.nav_view)
 
         if (live_page.value != null)
             page = live_page.value!!
-        //  recyclerView.layoutManager = LinearLayoutManager(requireContext())
+
         if (!movieAdapter.isLinearLayout)
             recyclerView.layoutManager = GridLayoutManager(activity, 2)
         else
             recyclerView.layoutManager = LinearLayoutManager(activity)
-        //   movieAdapter.isLinearLayout = false
+
         controlScroll()
         if (page < 2) {
+            viewModel.showPage.value = 1
             viewModel.getPopularMovies()
             observeViewModel()
             page++
             live_page.postValue(page)
+            viewModel.showPage.value = viewModel.showPage.value?.plus(1)
         }
 
     }
@@ -158,14 +161,18 @@ class HomeFragment : Fragment(R.layout.fragment_home), RecyclerViewClickInterfac
         viewModel.getPopularMovies(page)
         page++
         live_page.postValue(page)
+        viewModel.showPage.value = viewModel.showPage.value?.plus(1)
+
     }
 
     fun getMoreSearchItems() {
-
+        Log.d("sayi",viewModel.showPage.value.toString())
         isLoading = false
         viewModel.getSearchMovies(page = page, query = searchMovie)
         page++
         live_page.postValue(page)
+        viewModel.showPage.value = viewModel.showPage.value?.plus(1)
+
     }
 
     fun observeViewModel() {
@@ -198,13 +205,19 @@ class HomeFragment : Fragment(R.layout.fragment_home), RecyclerViewClickInterfac
                 )
 
             }
+
         }
 
 
         viewModel.showError.observe(requireActivity()) {
 
-            if (it)
-                Toast.makeText(context, "islem basarisiz", Toast.LENGTH_SHORT).show()
+            if (it == true) {
+                page--
+                Log.e("hata", page.toString())
+                if (context != null)
+                    Toast.makeText(context, "islem basarisiz", Toast.LENGTH_SHORT).show()
+            }
+
 
         }
 

@@ -12,9 +12,9 @@ import androidx.navigation.ui.setupWithNavController
 import com.example.tmdbapp.ui.home.HomeFragment
 import com.google.android.material.bottomnavigation.BottomNavigationView
 
-class MainActivity : AppCompatActivity() ,HomeFragment.OnHeadlineSelectedListener{
+class MainActivity : AppCompatActivity(), HomeFragment.OnHeadlineSelectedListener {
 
-    var navView: BottomNavigationView?=null
+    var navView: BottomNavigationView? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
@@ -22,13 +22,13 @@ class MainActivity : AppCompatActivity() ,HomeFragment.OnHeadlineSelectedListene
         super.onCreate(savedInstanceState)
 
         setContentView(R.layout.activity_main)
-        navView  = findViewById(R.id.nav_view)
+        navView = findViewById(R.id.nav_view)
         val navController = findNavController(R.id.nav_host_fragment)
 
 
-var fragment:Fragment?=supportFragmentManager.findFragmentById(R.id.nav_host_fragment)
+        var fragment: Fragment? = supportFragmentManager.findFragmentById(R.id.nav_host_fragment)
 
-        if(fragment is HomeFragment){
+        if (fragment is HomeFragment) {
             Log.d("sa", "hsajkl")
 
         }
@@ -48,7 +48,6 @@ var fragment:Fragment?=supportFragmentManager.findFragmentById(R.id.nav_host_fra
     }
 
 
-
     override fun onAttachFragment(fragment: Fragment) {
 
         if (fragment is HomeFragment) {
@@ -57,7 +56,6 @@ var fragment:Fragment?=supportFragmentManager.findFragmentById(R.id.nav_host_fra
     }
 
     override fun onArticleSelected() {
-
 
 
     }

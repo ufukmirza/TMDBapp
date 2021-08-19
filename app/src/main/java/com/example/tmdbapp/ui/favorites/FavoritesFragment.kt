@@ -33,7 +33,6 @@ class FavoritesFragment : Fragment(R.layout.fragment_favorites),RecyclerViewClic
         recyclerView=view.findViewById(R.id.recyclerView)
         recyclerView.adapter=movieAdapter
         movieAdapter.recyclerViewClickInterface = this
-       // if(!movieAdapter.isLinearLayout)
         recyclerView.layoutManager =   if(movieAdapter.isLinearLayout==false) GridLayoutManager(activity, 2) else  LinearLayoutManager(activity)
         viewModel.getFavorites(db)
         observe()
