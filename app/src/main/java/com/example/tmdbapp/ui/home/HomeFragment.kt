@@ -1,13 +1,19 @@
 package com.example.tmdbapp.ui.home
 
+import android.app.Activity
 import android.content.Context
+import android.content.Context.INPUT_METHOD_SERVICE
+import android.inputmethodservice.InputMethodService
 import android.os.Bundle
 import android.util.Log
 import android.view.*
+import android.view.inputmethod.InputMethod
+import android.view.inputmethod.InputMethodManager
 import android.widget.Button
 import android.widget.EditText
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
+import androidx.core.content.ContextCompat.getSystemService
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.MutableLiveData
@@ -21,6 +27,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.tmdbapp.R
 import com.example.tmdbapp.model.PaginationScrollListener
 import com.example.tmdbapp.model.Result
+import com.google.android.material.bottomnavigation.BottomNavigationView
 
 
 class HomeFragment : Fragment(R.layout.fragment_home), RecyclerViewClickInterface {
@@ -38,6 +45,20 @@ class HomeFragment : Fragment(R.layout.fragment_home), RecyclerViewClickInterfac
     var movieList = ArrayList<Result>()
     lateinit var recyclerView: RecyclerView
     val isSwitched: Boolean = true
+
+
+    internal lateinit var callback: OnHeadlineSelectedListener
+
+    fun setOnHeadlineSelectedListener(callback: OnHeadlineSelectedListener) {
+        this.callback = callback
+    }
+
+    // This interface can be implemented by the Activity, parent Fragment,
+    // or a separate test implementation.
+    interface OnHeadlineSelectedListener {
+        fun onArticleSelected()
+    }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         setHasOptionsMenu(true)
@@ -47,10 +68,15 @@ class HomeFragment : Fragment(R.layout.fragment_home), RecyclerViewClickInterfac
             //    textView.text = it
         })
 
+        //
 
-        // val bottomNavigationView : BottomNavigationView = activity?.findViewById(R.id.nav_view)!!
+//callback.onArticleSelected()
+
+        //  val navController = navHostFragment.navController
         var button = view.findViewById<Button>(R.id.button)
         button.setOnClickListener {
+            val inputMethodManager = activity?.getSystemService(Activity.INPUT_METHOD_SERVICE) as InputMethodManager
+            inputMethodManager.hideSoftInputFromWindow(view.windowToken, 0)
             searchMovie = view.findViewById<EditText>(R.id.searchMovie).text.toString()
             isFirstStart = true
             isItSearch = true
@@ -68,10 +94,18 @@ class HomeFragment : Fragment(R.layout.fragment_home), RecyclerViewClickInterfac
                 viewLifecycleOwner) { result ->
             Log.d("sa", result.id.toString())
             val movie: Result? = movieAdapter.movies.find { it.id == result.id }
-            movieAdapter.movies.set(movieAdapter.movies.indexOf(movie), result)
+
+            var index = movieAdapter.movies.indexOf(movie)
+            if (index != -1)
+                movieAdapter.movies.set(index, result)
             movieAdapter.notifyDataSetChanged()
+
+
             //     Log.d("sa",result)
         }
+
+        //   val bottomNavigationView : BottomNavigationView = requireActivity().findViewById(R.id.nav_view)
+
         if (live_page.value != null)
             page = live_page.value!!
         //  recyclerView.layoutManager = LinearLayoutManager(requireContext())
@@ -169,8 +203,8 @@ class HomeFragment : Fragment(R.layout.fragment_home), RecyclerViewClickInterfac
 
         viewModel.showError.observe(requireActivity()) {
 
-            if(it)
-            Toast.makeText(context,"islem basarisiz",Toast.LENGTH_SHORT).show()
+            if (it)
+                Toast.makeText(context, "islem basarisiz", Toast.LENGTH_SHORT).show()
 
         }
 
