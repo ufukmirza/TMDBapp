@@ -84,6 +84,7 @@ class HomeFragment : Fragment(R.layout.fragment_home), RecyclerViewClickInterfac
             viewModel.showPage.value = 1
             viewModel.getSearchMovies(query = searchMovie)
             viewModel.showPage.value = 2
+            page=2
 
         }
 
