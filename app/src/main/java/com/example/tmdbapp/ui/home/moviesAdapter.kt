@@ -91,18 +91,12 @@ class moviesAdapter : RecyclerView.Adapter<moviesAdapter.MyViewHolder>(){
             textView4.text = movie.vote_average.toString()
             Glide.with(imageView.context).load("https://image.tmdb.org/t/p/w500" + movie.backdrop_path)
                     .apply( RequestOptions().placeholder(R.drawable.nophoto).error(R.drawable.nophoto))
-                    // .override(450,450)
-                    //    .centerInside()
                     .into(imageView)
             if (movie.isFavorite == true)
                 checkBox.isChecked = true
             else
                 checkBox.isChecked = false
-            /*if(stringHashSet!!.contains(movie.id.toString())) {
-                checkBox.isChecked = true
-                Log.d("sa",movie.id.toString())
-            }*/
-            // imageView.setImageResource(R.)
+
         }
 
     }

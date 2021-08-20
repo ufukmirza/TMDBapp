@@ -7,9 +7,11 @@ import android.view.View
 import android.widget.CheckBox
 import android.widget.ImageView
 import android.widget.TextView
+import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.LifecycleOwner
 import androidx.navigation.fragment.findNavController
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
@@ -19,6 +21,9 @@ import com.example.tmdbapp.model.Result
 
 
 class DetailFragment : Fragment(R.layout.fragment_detail) {
+
+
+    //detay sayfasindaki degiskenler olusturulur.
 
     lateinit var movieName: TextView
     lateinit var movieDetail: TextView
@@ -33,10 +38,10 @@ class DetailFragment : Fragment(R.layout.fragment_detail) {
     val db by lazy { DBHelper(requireContext()) }
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
 
+        //shared preferencestaki favori id leri cekilir.
+
         val preferences = context?.getSharedPreferences("preferences", Context.MODE_PRIVATE)
         stringHashSet = preferences?.getStringSet("favorites", HashSet<String>())
-        //val navBar: BottomNavigationView = activity?.findViewById(R.id.nav_view)!!
-        //   navBar.visibility=View.INVISIBLE
         activity?.actionBar?.hide()
 
         movieName = view.findViewById(R.id.MovieName)
@@ -47,20 +52,23 @@ class DetailFragment : Fragment(R.layout.fragment_detail) {
         favourite = view.findViewById(R.id.checkBox)
 
 
-
+//eger detay sayfasinda filmin yildiz ikonuna basilirsa
+//film zaten favori ise favorilerden cikarilir ve hem shared preferencesa hem de sql database den kaldirilir
+//film favoride degilse favorilere alinir ve shared preferences ile sql database e kaydedilir.
+//geri tusuna basilgidinda anasayfa ekrani uzerinde filmin favoriden cikarilip cikarilmamasinin gozukebilmesi icin findNavController kullanilir.
 
         favourite.setOnClickListener {
             var inSet = HashSet<String>(stringHashSet)
             if (favourite.isChecked) {
                 inSet.add(movieId.toString())
                 preferences?.edit()?.putStringSet("favorites", inSet)!!.apply()
-                movie?.isFavorite=true
+                movie?.isFavorite = true
                 findNavController().previousBackStackEntry?.savedStateHandle?.set("unique_key", movie)
                 Log.d("sa", stringHashSet?.size.toString())
                 db.insertData(movie!!)
 
             } else {
-                movie?.isFavorite=false
+                movie?.isFavorite = false
                 inSet.remove(movieId.toString())
                 findNavController().previousBackStackEntry?.savedStateHandle?.set("unique_key", movie)
                 preferences?.edit()?.putStringSet("favorites", inSet)!!.apply()
@@ -70,6 +78,8 @@ class DetailFragment : Fragment(R.layout.fragment_detail) {
 
         }
 
+     //eger film ana sayfa ekranindan cekiliyorsa (favoriler sayfasindan cekilmiyorsa) film detaylari api uzerinden saglanir.
+    //eger film favori sayfasindan cekiliyorsa  film detaylari secilen filmin database deki bilgileri uzerinden saglanir
 
         if (arguments?.getBoolean("isFavoriteFragment", false) == false) {
             detailViewModel.getMovieDetail(arguments?.getInt("id")!!)
@@ -81,7 +91,7 @@ class DetailFragment : Fragment(R.layout.fragment_detail) {
                 movie = it
                 movieId = it.id
                 movieDetail.text = it.overview
-                favourite.isChecked=true
+                favourite.isChecked = true
                 movieName.text = it.original_title
                 movieDate.append(it.release_date)
                 movieVote.append(it.vote_average.toString())
@@ -96,19 +106,20 @@ class DetailFragment : Fragment(R.layout.fragment_detail) {
 
     }
 
+    //film detaylari api uzerinden cekildiginde detay sayfasi uzerine aktarilir
+    //film detaylari api uzerinden cekilirken bir hata ile karsilasilirsa kullaniciya hata mesaji sunulur.
+
     fun observe() {
 
         detailViewModel.showLiveData.observe(requireActivity()) {
             movie = it
             movieId = it.id
             movieDetail.text = it.overview
-            // movieDetail.text="\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nsa"
+
             movieName.text = it.original_title
             movieDate.append(it.release_date)
             movieVote.append(it.vote_average.toString())
             Glide.with(movieImage.context).load("https://image.tmdb.org/t/p/w500" + it.backdrop_path)
-                    // .override(450,450)
-                    //    .centerInside()
                     .apply(RequestOptions().placeholder(R.drawable.nophoto).error(R.drawable.nophoto))
                     .into(movieImage)
 
@@ -118,6 +129,14 @@ class DetailFragment : Fragment(R.layout.fragment_detail) {
             }
 
 
+        }
+        detailViewModel.showError.observe(requireActivity()) {
+
+            if (it == true) {
+                if (context != null)
+                    Toast.makeText(context, "islem basarisiz", Toast.LENGTH_SHORT).show()
+            }
+
 
         }
 
@@ -125,7 +144,4 @@ class DetailFragment : Fragment(R.layout.fragment_detail) {
     }
 
 
-
 }
-
-

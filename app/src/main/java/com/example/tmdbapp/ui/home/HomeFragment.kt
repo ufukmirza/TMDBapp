@@ -32,27 +32,30 @@ import com.google.android.material.bottomnavigation.BottomNavigationView
 
 class HomeFragment : Fragment(R.layout.fragment_home), RecyclerViewClickInterface {
 
+
+    //değiskenlerin oluşturulmasi
+
     private lateinit var homeViewModel: HomeViewModel
-     val viewModel: HomeViewModel by viewModels()
-     var movieAdapter = moviesAdapter()
+    val viewModel: HomeViewModel by viewModels()
+    var movieAdapter = moviesAdapter()
     var isFirstStart = true
     var isItSearch = false
-    var page = 1
-    var live_page = MutableLiveData<Int>()
     var isLastPage: Boolean = false
     var isLoading: Boolean = false
+    var page = 1
     var searchMovie = ""
     var movieList = ArrayList<Result>()
     lateinit var recyclerView: RecyclerView
     val isSwitched: Boolean = true
 
 
+    //activity ile fragmentin haberlesmesi icin interface eklenmesi
+
     internal lateinit var callback: OnHeadlineSelectedListener
 
     fun setOnHeadlineSelectedListener(callback: OnHeadlineSelectedListener) {
         this.callback = callback
     }
-
 
 
     interface OnHeadlineSelectedListener {
@@ -69,9 +72,7 @@ class HomeFragment : Fragment(R.layout.fragment_home), RecyclerViewClickInterfac
         })
 
 
-
-
-
+//arama butonuna basildiginda klavye otomatik kapanir ve viewModelde aranilan filmle ilgili bilgileri çekmek için fonksiyon cagirilir
 
         var button = view.findViewById<Button>(R.id.button)
         button.setOnClickListener {
@@ -80,17 +81,22 @@ class HomeFragment : Fragment(R.layout.fragment_home), RecyclerViewClickInterfac
             searchMovie = view.findViewById<EditText>(R.id.searchMovie).text.toString()
             isFirstStart = true
             isItSearch = true
-            page = 2
             viewModel.showPage.value = 1
-            live_page.postValue(page)
             viewModel.getSearchMovies(query = searchMovie)
             viewModel.showPage.value = 2
 
         }
+
+        //olusturulan recyclerview  fragment üzerindeki id ile eslenir ve adapterler baglanir.
+
         recyclerView = view.findViewById<RecyclerView>(R.id.recyclerView)
         recyclerView.adapter = movieAdapter
         movieAdapter.recyclerViewClickInterface = this
         movieAdapter.context = context
+
+
+        //detay sayfasindan geri tusuna basildigi takdirde eger detay sayfasında film favoriye alinir ve ya cikarilirsa anasayfa üzerinde
+        //filmin favori durumu guncellenir.
 
         findNavController().currentBackStackEntry?.savedStateHandle?.getLiveData<Result>("unique_key")?.observe(
                 viewLifecycleOwner) { result ->
@@ -103,26 +109,25 @@ class HomeFragment : Fragment(R.layout.fragment_home), RecyclerViewClickInterfac
             movieAdapter.notifyDataSetChanged()
 
 
-
         }
 
-
-        if (live_page.value != null)
-            page = live_page.value!!
+        //eger ana ekran linear ve ya grid yapiya gecirilirse telefon donduruldugunde aynni yapida kalmasi saglanir
 
         if (!movieAdapter.isLinearLayout)
             recyclerView.layoutManager = GridLayoutManager(activity, 2)
         else
             recyclerView.layoutManager = LinearLayoutManager(activity)
 
+        //recycler view üzerinde scroll kontrol fonksiyonunun olusturulmasi
         controlScroll()
+
+        //eger uygulamada kullanıcı arama sayfasında degilse ve anasayfaya ilk defa eristiyse populer filmlerin ilk sayfası cekilir.
         if (page < 2) {
             viewModel.showPage.value = 1
             viewModel.getPopularMovies()
             observeViewModel()
             page++
-            live_page.postValue(page)
-            viewModel.showPage.value = viewModel.showPage.value?.plus(1)
+            viewModel.showPage.value = 2
         }
 
     }
@@ -143,11 +148,11 @@ class HomeFragment : Fragment(R.layout.fragment_home), RecyclerViewClickInterfac
             override fun loadMoreItems() {
 
                 isLoading = true
-                //you have to call loadmore items to get more data
+                // ana sayfa ekranında asagi kaydirirken eger kullanici arama sonuclarini gormuyorsa populer filmler cekilmeye devam eder.
                 if (isItSearch == false)
                     getMoreItems()
 
-
+// ana sayfa ekranında asagi kaydirirken eger kullanici arama sonuclarini goruyorsa aranan filmler cekilmeye devam eder.
                 if (isItSearch == true)
                     getMoreSearchItems()
             }
@@ -155,28 +160,38 @@ class HomeFragment : Fragment(R.layout.fragment_home), RecyclerViewClickInterfac
 
     }
 
+    //populer filmlerin api uzerinden siradaki sayfadan cekilmesi
+
     fun getMoreItems() {
 
         isLoading = false
         viewModel.getPopularMovies(page)
         page++
-        live_page.postValue(page)
         viewModel.showPage.value = viewModel.showPage.value?.plus(1)
 
     }
 
+    //aranan filmlerin api uzerinden siradaki sayfadan cekilmesi
+
     fun getMoreSearchItems() {
-        Log.d("sayi",viewModel.showPage.value.toString())
+        Log.d("sayi", viewModel.showPage.value.toString())
         isLoading = false
         viewModel.getSearchMovies(page = page, query = searchMovie)
         page++
-        live_page.postValue(page)
         viewModel.showPage.value = viewModel.showPage.value?.plus(1)
 
     }
 
+    //viewmodel uzerinde data degisikligi olursa data cekilir ve  bu fonkiyon calisir duruma gelir.
+
     fun observeViewModel() {
 
+
+        //film datalari geldigi takdirde ilk olarak sharedPreferences uzerindeki
+        //favori film idleri cekilir ve cekilen film id leri ile favori idler karsilastirilir.
+        //eger ayni id ye sahipler ise film favori değiskeni true yapilarak filmin favori isaretlemesi yapilmasi saglanir.
+        //eger filmler cekildiginde anasayfa ilk defa cagirildiysa filmler anasayfadaki filmler degisikligine aktarilir
+        //rger filmler cekildiginde anasayfa ilk defa cagirilmadiysa filmler anasayfadaki filmler degisikligine eklenir.
 
         viewModel.showLiveData.observe(requireActivity()) {
             val preferences = context?.getSharedPreferences("preferences", Context.MODE_PRIVATE)
@@ -208,6 +223,8 @@ class HomeFragment : Fragment(R.layout.fragment_home), RecyclerViewClickInterfac
 
         }
 
+        //film cekilmesi sirasinda herhangi bir hata gerceklestiyse kullaniciya bir mesaj yoluyla bildirilir.
+
 
         viewModel.showError.observe(requireActivity()) {
 
@@ -225,12 +242,17 @@ class HomeFragment : Fragment(R.layout.fragment_home), RecyclerViewClickInterfac
     }
 
 
+    //kullanicinin grid ve linear layout gecislerinin saglanabilmesi icin menu olusturulur.
+
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
 
         val inflater: MenuInflater = requireActivity().menuInflater
         inflater.inflate(R.menu.top_bar_menu, menu)
 
     }
+
+
+    //kullanici menude grid layouta basarsa gride linear layouta basarsa linear yapiya gecer.
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.getItemId()) {
@@ -255,16 +277,16 @@ class HomeFragment : Fragment(R.layout.fragment_home), RecyclerViewClickInterfac
         }
 
     }
+    //ana sayfa uzerinde filme basildigi takdirde filmin id si detay sayfasına gonderilerek
+    // servis endpointaracılığı ile film detayları API üzerinden çekilir ve detay sayfasinda gosterilir.
 
     override fun onItemClick(movie: Result) {
 
         val navController = activity?.findNavController(R.id.nav_host_fragment)
         if (navController != null) {
 
-            //first solution is sending the movie to details page
             val bundle = Bundle()
             bundle.putInt("id", movie.id!!)
-            //  bundle.putSerializable("movie",viewModel.showLiveData.value)
             navController.navigate(R.id.action_navigation_home_to_detailFragment, bundle)
 
 

@@ -15,6 +15,7 @@ class FavoritesViewModel : ViewModel() {
     }
     val text: LiveData<String> = _text
 
+//filmler database uzerinden cekilir.
 
     fun getFavorites(db: DBHelper) {
 

@@ -20,6 +20,8 @@ import com.example.tmdbapp.ui.home.moviesAdapter
 
 class FavoritesFragment : Fragment(R.layout.fragment_favorites),RecyclerViewClickInterface {
 
+    //degiskenlerin olusturulmasi.
+
     val viewModel: FavoritesViewModel by viewModels()
     val db by lazy { DBHelper(requireContext())  }
     lateinit var recyclerView: RecyclerView
@@ -30,15 +32,23 @@ class FavoritesFragment : Fragment(R.layout.fragment_favorites),RecyclerViewClic
         super.onViewCreated(view, savedInstanceState)
 
         setHasOptionsMenu(true)
+
+        //recycler view olusturulan adapter ile eslenir
+
         recyclerView=view.findViewById(R.id.recyclerView)
         recyclerView.adapter=movieAdapter
         movieAdapter.recyclerViewClickInterface = this
         recyclerView.layoutManager =   if(movieAdapter.isLinearLayout==false) GridLayoutManager(activity, 2) else  LinearLayoutManager(activity)
+
+
+       //viewModel kullanilarak favori filmler database uzerinden cekilir.
         viewModel.getFavorites(db)
         observe()
 
 
     }
+
+    //filmler database uzerinden cekildiginde favoriler sayfasi uzerinde siralanir.
 
     fun observe(){
 
@@ -52,6 +62,8 @@ class FavoritesFragment : Fragment(R.layout.fragment_favorites),RecyclerViewClic
         }
 
     }
+
+    //favori sayfasinda film secilirse secilen film bilgisi detay sayfasina gonderilir ve detay sayfasina gecilir.
 
     override fun onItemClick(movie: Result) {
 
@@ -68,12 +80,16 @@ class FavoritesFragment : Fragment(R.layout.fragment_favorites),RecyclerViewClic
 
     }
 
+    //kullanicinin grid ve linear layout gecislerinin saglanabilmesi icin menu olusturulur.
+
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
 
         val inflater: MenuInflater = requireActivity().menuInflater
         inflater.inflate(R.menu.top_bar_menu, menu)
 
     }
+
+    //kullanici menude grid layouta basarsa gride linear layouta basarsa linear yapiya gecer.
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.getItemId()) {

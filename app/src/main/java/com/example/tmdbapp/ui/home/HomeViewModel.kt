@@ -31,6 +31,7 @@ class HomeViewModel : ViewModel() {
 
 
 
+//populer filmler api uzerinden cekilir.
 
     fun getPopularMovies(page:Int=1){
 
@@ -55,6 +56,8 @@ class HomeViewModel : ViewModel() {
 
 
     }
+
+    //aranan filmler api uzerinden cekilir.
 
     fun getSearchMovies(page:Int=1,query: String){
 
