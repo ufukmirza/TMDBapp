@@ -5,13 +5,14 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.tmdbapp.model.DetailedResult
 import com.example.tmdbapp.model.Result
 import com.example.tmdbapp.util.ServiceManager
 import kotlinx.coroutines.launch
 
 class DetailViewModel: ViewModel() {
 
-    var showLiveData= MutableLiveData<Result>()
+    var showLiveData= MutableLiveData<DetailedResult>()
     var showError=MutableLiveData<Boolean>().apply {
         false
     }

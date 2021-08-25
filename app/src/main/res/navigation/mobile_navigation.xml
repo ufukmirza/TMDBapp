@@ -42,5 +42,14 @@
         android:id="@+id/detailFragment"
         android:name="com.example.tmdbapp.ui.detail.DetailFragment"
         android:label="DetailFragment"
-        tools:layout="@layout/fragment_detail"/>
+        tools:layout="@layout/fragment_detail">
+        <action
+            android:id="@+id/action_detailFragment_to_actorFragment"
+            app:destination="@id/actorFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/actorFragment"
+        android:name="com.example.tmdbapp.ui.actor.ActorFragment"
+        android:label="ActorFragment"
+        tools:layout="@layout/fragment_actor"/>
 </navigation>
